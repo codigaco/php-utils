@@ -15,30 +15,36 @@ use ReflectionProperty;
 /** @see ReflectionUtils::getProperties() */
 class ReflectionUtilsGetPropertiesTest extends TestCase
 {
-    public function testGetProperties(): void
+    /** @dataProvider provider */
+    public function testGetPropertie(array $expected, string $className): void
     {
-        $expected = [
-            new ReflectionProperty(PublicFoo::class, 'id'),
-            new ReflectionProperty(PublicFoo::class, 'name'),
-            new ReflectionProperty(PublicFoo::class, 'privateFoo'),
-            new ReflectionProperty(PublicFoo::class, 'withDocType'),
-            new ReflectionProperty(PublicFoo::class, 'withoutType'),
-        ];
-        self::assertEquals($expected, ReflectionUtils::getProperties(PublicFoo::class));
+        !class_exists($className) && $this->expectException(ReflectionException::class);
+        $properties = ReflectionUtils::getProperties($className);
+        class_exists($className) && self::assertEquals($expected, $properties);
     }
 
-    public function testGetParentProperties(): void
+    public function provider(): iterable
     {
-        $expected = [
-            new ReflectionProperty(ChildFoo::class, 'name'),
-            new ReflectionProperty(ParentFoo::class, 'id'),
+        yield 'PublicClassProperties' => [
+            [
+                new ReflectionProperty(PublicFoo::class, 'id'),
+                new ReflectionProperty(PublicFoo::class, 'name'),
+                new ReflectionProperty(PublicFoo::class, 'privateFoo'),
+                new ReflectionProperty(PublicFoo::class, 'withDocType'),
+                new ReflectionProperty(PublicFoo::class, 'withoutType'),
+            ],
+            PublicFoo::class,
         ];
-        self::assertEquals($expected, ReflectionUtils::getProperties(ChildFoo::class));
-    }
-
-    public function testClassNotExist(): void
-    {
-        $this->expectException(ReflectionException::class);
-        ReflectionUtils::getProperty('kk', 'id');
+        yield 'ChildAndParentProperties' => [
+            [
+                new ReflectionProperty(ChildFoo::class, 'name'),
+                new ReflectionProperty(ParentFoo::class, 'id'),
+            ],
+            ChildFoo::class,
+        ];
+        yield 'ClassNotExist' => [
+            [],
+            'kk'
+        ];
     }
 }
