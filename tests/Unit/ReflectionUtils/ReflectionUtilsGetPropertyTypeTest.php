@@ -13,16 +13,22 @@ use ReflectionException;
 /** @see ReflectionUtils::propertyType() */
 class ReflectionUtilsGetPropertyTypeTest extends TestCase
 {
-    public function testType(): void
-    {
-        self::assertEquals('int', ReflectionUtils::propertyType(PublicFoo::class, 'id'));
-        self::assertEquals('string', ReflectionUtils::propertyType(PublicFoo::class, 'name'));
-        self::assertEquals(PrivateFoo::class, ReflectionUtils::propertyType(PublicFoo::class, 'privateFoo'));
-    }
-
     public function testHasNotType(): void
     {
         $this->expectException(ReflectionException::class);
         ReflectionUtils::propertyType(PublicFoo::class, 'withoutType');
+    }
+
+    /** @dataProvider provider */
+    public function testType(string $expected, string $className, string $properyName): void
+    {
+        self::assertEquals($expected, ReflectionUtils::propertyType($className, $properyName));
+    }
+
+    public function provider(): iterable
+    {
+        yield 'integer' => ['int', PublicFoo::class, 'id'];
+        yield 'string' => ['string', PublicFoo::class, 'name'];
+        yield 'class' => [PrivateFoo::class, PublicFoo::class, 'privateFoo'];
     }
 }
