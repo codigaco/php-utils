@@ -15,27 +15,47 @@ use ReflectionProperty;
 /** @see ReflectionUtils::getProperties() */
 class ReflectionUtilsGetPropertyTest extends TestCase
 {
-    public function testGetProperty(): void
-    {
-        $reflectionProperty = new ReflectionProperty(PublicFoo::class, 'id');
-        self::assertEquals($reflectionProperty, ReflectionUtils::getProperty(PublicFoo::class, 'id'));
-    }
-
-    public function testParentProperty(): void
-    {
-        $reflectionProperty = new ReflectionProperty(ParentFoo::class, 'id');
-        self::assertEquals($reflectionProperty, ReflectionUtils::getProperty(ChildFoo::class, 'id'));
-    }
-
-    public function testPropertyNotFound(): void
+    public function testPropertyDoesNotExist(): void
     {
         $this->expectException(ReflectionException::class);
         ReflectionUtils::getProperty(PublicFoo::class, 'kk');
     }
 
-    public function testClassNotExist(): void
+    /** @dataProvider provider */
+    public function testGetProperty(
+        ReflectionProperty $reflectionProperty,
+        string $className,
+        string $propertyName
+    ): void {
+        !class_exists($className) && $this->expectException(ReflectionException::class);
+        $property = ReflectionUtils::getProperty($className, $propertyName ?? '');
+        class_exists($className) && self::assertEquals($reflectionProperty, $property);
+    }
+
+    public function provider(): iterable
     {
-        $this->expectException(ReflectionException::class);
-        ReflectionUtils::getProperty('kk', 'id');
+        yield 'getPropery' => [
+            new ReflectionProperty(PublicFoo::class, 'id'),
+            PublicFoo::class,
+            'id'
+        ];
+
+        yield 'getParentProperty' => [
+            new ReflectionProperty(ParentFoo::class, 'id'),
+            ChildFoo::class,
+            'id',
+        ];
+
+        yield 'getEmbebedPropery' => [
+            new ReflectionProperty(ParentFoo::class, 'id'),
+            PublicFoo::class,
+            'privateFoo.childFoo.id',
+        ];
+
+        yield 'classNotFound' => [
+            new ReflectionProperty(PublicFoo::class, 'id'),
+            'kk',
+            'id',
+        ];
     }
 }
