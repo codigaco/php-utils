@@ -47,6 +47,7 @@ class ReflectionUtils
         return array_merge($reflection->getProperties(), self::getProperties($parentClass->getName()));
     }
 
+    /** @throws ReflectionException */
     public static function newInstanceWithProperties(string $class, array $attributes): object
     {
         $reflection = new ReflectionClass($class);
@@ -60,6 +61,7 @@ class ReflectionUtils
         return $instance;
     }
 
+    /** @throws ReflectionException */
     public static function newInstanceWithConstructor(string $class, array $attributes): object
     {
         $reflection = new ReflectionClass($class);
@@ -91,6 +93,7 @@ class ReflectionUtils
         }
     }
 
+    /** @throws ReflectionException */
     public static function propertyType(string $class, string $route): string
     {
         $property = self::getProperty($class, $route);
@@ -111,6 +114,7 @@ class ReflectionUtils
         throw new ReflectionException(sprintf('Undefined type of %s in %s', $route, $class));
     }
 
+    /** @throws ReflectionException */
     public static function isNullable(string $class, string $route): bool
     {
         $property = self::getProperty($class, $route);
