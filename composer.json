@@ -1,5 +1,6 @@
 {
   "name": "codigaco/php-utils",
+  "description": "PHP Utils from Codigaco!",
   "autoload": {
     "files": [
       "vendor/autoload.php"
