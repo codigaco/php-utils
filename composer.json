@@ -1,6 +1,9 @@
 {
   "name": "codigaco/php-utils",
   "description": "PHP Utils from Codigaco!",
+  "license": [
+    "MIT"
+  ],
   "autoload": {
     "files": [
       "vendor/autoload.php"
